@@ -16,7 +16,22 @@ on:
         feature/release-python3
     ]
 jobs:
-  asc_scan:
+  sast_scan:
+    runs-on: ubuntu-latest
+    env: 
+      SONAR_URL: "https://sonar.prod.amdtx.wildflowers-na.com"
+      
+    steps: 
+      - name: code base clone
+        uses: actions/checkout@v3.0.0
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@2.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ env.SONAR_URL }}
+
+  build_and_push_artifact:
     # equal with agent build
     #${{github.head_ref || github.ref_name}}-
     runs-on: ubuntu-latest 
@@ -25,7 +40,7 @@ jobs:
       ACR_SERVER: docker.io
       TAG_NAME: ${{ github.sha }}
     steps:
-      - name: Checkout sample Dockerfile
+      - name: code base clone
         uses: actions/checkout@v3.0.0
         # with:
         #   ref: 'main'
@@ -42,30 +57,3 @@ jobs:
       - name: Push the docker image to ${{ env.ACR_REPO_NAME }}
         run: |
           docker push ${{ env.ACR_REPO_NAME }}:${{ env.TAG_NAME }}
-
-      # - name: Scan Docker image using Azure Container Scan action
-      #   uses: Azure/container-scan@v0
-      #   id: container-scan
-      #   continue-on-error: true
-      #   with:
-      #     image-name: ${{ env.ACR_SERVER }}/${{ env.ACR_REPO_NAME }}:${{ github.sha }}
-      #     # run-quality-checks provides CIS benchmark assessment
-      #     run-quality-checks: true
-      # - name: Login to Azure Container Registry
-      #   uses: Azure/docker-login@v1
-      #   with:
-      #     login-server: quyennvsecacr.azurecr.io
-      #     username: ${{ secrets.ACR_USERNAME }}
-      #     password: ${{ secrets.ACR_PASSWORD }}
-      # - name: Push scanned image to ${{ env.ACR_REPO_NAME }}
-      #   run: |
-      #     docker push ${{ env.ACR_SERVER }}/${{ env.ACR_REPO_NAME }}:${{ github.sha }}
-      # - name: Post result status to Azure Security Center
-      #   uses: Azure/publish-security-assessments@v0
-      #   with:
-      #     artifact-type: containerImage
-      #     scan-provider: trivy
-      #     connection-string: ${{ secrets.ASC_NAME }}
-      #     subscription-token: ${{ secrets.ASC_AUTH_TOKEN }}
-      #     # Do not modify ${{ steps.container-scan.outputs.scan-report-path }} as it uses this path by default in Version 0.1
-      #     scan-results-path: ${{ steps.container-scan.outputs.scan-report-path }}
