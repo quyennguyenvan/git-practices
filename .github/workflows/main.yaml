@@ -18,11 +18,12 @@ on:
 jobs:
   asc_scan:
     # equal with agent build
+    #${{github.head_ref || github.ref_name}}-
     runs-on: ubuntu-latest 
     env:
       ACR_REPO_NAME: quyencl91/vti-test
       ACR_SERVER: docker.io
-      TAG_NAME: ${{github.head_ref || github.ref_name}}-${{ github.sha }}
+      TAG_NAME: ${{ github.sha }}
     steps:
       - name: Checkout sample Dockerfile
         uses: actions/checkout@v3.0.0
