@@ -32,6 +32,14 @@ jobs:
       - name: Build a sample Docker image with Firefox
         run: |
           docker build -t ${{ env.ACR_SERVER }}/${{ env.ACR_REPO_NAME }}:${{ env.TAG_NAME }} --file appbuild.dockerfile .
+          
+      - name: login to docker registry 
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.ACR_SERVER }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PAT }}
+
       - name: Push the docker image to ${{ env.ACR_REPO_NAME }}
         run: |
           docker push ${{ env.ACR_SERVER }}/${{ env.ACR_REPO_NAME }}:${{ env.TAG_NAME }}
