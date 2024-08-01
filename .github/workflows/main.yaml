@@ -25,8 +25,8 @@ jobs:
     steps:
       - name: Checkout sample Dockerfile
         uses: actions/checkout@v3.0.0
-        with:
-          ref: 'main'
+        # with:
+        #   ref: 'main'
       - name: Build a sample Docker image with Firefox
         run: |
           docker build -t ${{ env.ACR_SERVER }}/${{ env.ACR_REPO_NAME }}:${{ github.sha }} --file appbuild.dockerfile .
